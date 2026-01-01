@@ -1,81 +1,77 @@
 import { useState, useMemo } from 'react';
-import { initializeRooms, bookOptimalRooms, generateRandomOccupancy } from './utils/roomUtils';
+import { initializeRooms, bookOptimalRooms, generateRandomOccupancy, loadTestCase } from './utils/roomUtils';
 import RoomGrid from './components/RoomGrid';
 import ControlPanel from './components/ControlPanel';
+import BookingResults from './components/BookingResults';
+import TestCaseMode from './components/TestCaseMode';
 import './App.css';
 
 function App() {
   const [rooms, setRooms] = useState(() => initializeRooms());
   const [numRoomsInput, setNumRoomsInput] = useState('');
-  const [totalTravelTime, setTotalTravelTime] = useState(0);
+  const [bookingResult, setBookingResult] = useState(null);
+  const [isTestMode, setIsTestMode] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleBook = () => {
     const numRooms = parseInt(numRoomsInput);
     
+    // Edge case validation: Invalid input
     if (isNaN(numRooms) || numRooms < 1) {
-      alert('Please enter a valid number of rooms (1-5)');
+      setError('Please enter a valid number of rooms (1-5)');
+      setBookingResult(null);
       return;
     }
     
     if (numRooms > 5) {
-      alert('Maximum 5 rooms can be booked at a time!');
+      setError('Maximum 5 rooms can be booked at a time!');
+      setBookingResult(null);
       return;
     }
     
     const availableCount = rooms.filter(r => !r.booked).length;
     if (availableCount < numRooms) {
-      alert(`Only ${availableCount} room(s) available. Cannot book ${numRooms} rooms.`);
+      setError(`Only ${availableCount} room(s) available. Cannot book ${numRooms} rooms.`);
+      setBookingResult(null);
       return;
     }
     
-    const roomsCopy = rooms.map(r => ({ ...r }));
-    const selectedRooms = bookOptimalRooms(roomsCopy, numRooms);
+    setError(null);
     
-    if (selectedRooms.length === 0) {
-      alert('No suitable rooms found!');
+    // Use the optimal booking algorithm
+    const roomsCopy = rooms.map(r => ({ ...r }));
+    const result = bookOptimalRooms(roomsCopy, numRooms);
+    
+    // Handle errors from booking function
+    if (result.error) {
+      setError(result.error);
+      setBookingResult(null);
+      return;
+    }
+    
+    if (!result.selectedRooms || result.selectedRooms.length === 0) {
+      setError('No suitable rooms found!');
+      setBookingResult(null);
       return;
     }
     
     // Mark selected rooms as booked
     const updatedRooms = rooms.map(room => {
-      const selected = selectedRooms.find(sr => sr.id === room.id);
+      const selected = result.selectedRooms.find(sr => sr.id === room.id);
       return selected ? { ...room, booked: true } : room;
     });
     
-    // Calculate and display travel time
-    const travelTime = calculateTotalTravelTime(selectedRooms);
-    setTotalTravelTime(travelTime);
-    
     setRooms(updatedRooms);
     setNumRoomsInput('');
-    
-    // Show booking confirmation
-    const roomIds = selectedRooms.map(r => r.id).join(', ');
-    alert(`Booked ${numRooms} room(s): ${roomIds}\nTotal Travel Time: ${travelTime} minutes`);
-  };
-
-  const calculateTotalTravelTime = (selectedRooms) => {
-    if (selectedRooms.length <= 1) return 0;
-    
-    const sorted = [...selectedRooms].sort((a, b) => {
-      if (a.floor !== b.floor) return a.floor - b.floor;
-      return a.roomNumber - b.roomNumber;
-    });
-    
-    let totalTime = 0;
-    for (let i = 1; i < sorted.length; i++) {
-      const floorDiff = Math.abs(sorted[i].floor - sorted[i - 1].floor);
-      const roomDiff = Math.abs(sorted[i].roomNumber - sorted[i - 1].roomNumber);
-      totalTime += floorDiff * 2 + roomDiff * 1;
-    }
-    
-    return totalTime;
+    setBookingResult(result);
   };
 
   const handleReset = () => {
     setRooms(initializeRooms());
     setNumRoomsInput('');
-    setTotalTravelTime(0);
+    setBookingResult(null);
+    setError(null);
+    setIsTestMode(false);
   };
 
   const handleRandom = () => {
@@ -83,7 +79,16 @@ function App() {
     const updated = generateRandomOccupancy(roomsCopy, 0.4);
     setRooms(updated);
     setNumRoomsInput('');
-    setTotalTravelTime(0);
+    setBookingResult(null);
+    setError(null);
+  };
+
+  const handleLoadTest = () => {
+    const testRooms = loadTestCase();
+    setRooms(testRooms);
+    setNumRoomsInput('');
+    setBookingResult(null);
+    setError(null);
   };
 
   // Organize rooms by floor for display
@@ -106,6 +111,7 @@ function App() {
 
   const bookedCount = rooms.filter(r => r.booked).length;
   const availableCount = rooms.length - bookedCount;
+  const canBook = availableCount > 0;
 
   return (
     <div className="app">
@@ -114,8 +120,13 @@ function App() {
         <span>Total Rooms: {rooms.length}</span>
         <span>Available: {availableCount}</span>
         <span>Booked: {bookedCount}</span>
-        {totalTravelTime > 0 && <span>Travel Time: {totalTravelTime} min</span>}
       </div>
+      
+      <TestCaseMode 
+        isTestMode={isTestMode}
+        onToggle={(e) => setIsTestMode(e.target.checked)}
+        onLoadTest={handleLoadTest}
+      />
       
       <ControlPanel
         numRoomsInput={numRoomsInput}
@@ -123,7 +134,18 @@ function App() {
         onBook={handleBook}
         onReset={handleReset}
         onRandom={handleRandom}
+        canBook={canBook}
       />
+      
+      {error && (
+        <div className="error-message">
+          ⚠️ {error}
+        </div>
+      )}
+      
+      {bookingResult && (
+        <BookingResults bookingResult={bookingResult} />
+      )}
       
       <RoomGrid roomsByFloor={roomsByFloor} />
     </div>
@@ -131,4 +153,3 @@ function App() {
 }
 
 export default App;
-

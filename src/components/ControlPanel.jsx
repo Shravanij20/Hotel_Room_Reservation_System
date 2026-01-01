@@ -1,6 +1,6 @@
 import './ControlPanel.css';
 
-function ControlPanel({ numRoomsInput, setNumRoomsInput, onBook, onReset, onRandom }) {
+function ControlPanel({ numRoomsInput, setNumRoomsInput, onBook, onReset, onRandom, canBook }) {
   return (
     <div className="control-panel">
       <div className="input-group">
@@ -16,7 +16,12 @@ function ControlPanel({ numRoomsInput, setNumRoomsInput, onBook, onReset, onRand
           className="rooms-input"
         />
       </div>
-      <button onClick={onBook} className="btn btn-book">
+      <button 
+        onClick={onBook} 
+        className="btn btn-book"
+        disabled={!canBook}
+        title={!canBook ? "No available rooms for booking" : ""}
+      >
         Book
       </button>
       <button onClick={onReset} className="btn btn-reset">

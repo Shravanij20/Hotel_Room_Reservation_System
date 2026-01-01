@@ -1,0 +1,76 @@
+.test-case-mode {
+  margin: 15px 0;
+  padding: 15px;
+  background-color: #fff3cd;
+  border: 2px solid #ffc107;
+  border-radius: 6px;
+}
+
+.test-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #856404;
+  font-size: 16px;
+}
+
+.test-toggle input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.test-case-info {
+  margin-top: 15px;
+  padding: 15px;
+  background-color: white;
+  border-radius: 4px;
+  border: 1px solid #ffc107;
+}
+
+.test-case-description p {
+  margin: 8px 0;
+  color: #333;
+}
+
+.test-rooms {
+  margin: 10px 0;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 14px;
+}
+
+.test-rooms div {
+  margin: 5px 0;
+}
+
+.test-instruction {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #e7f3ff;
+  border-left: 4px solid #0066cc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.btn-load-test {
+  margin-top: 10px;
+  padding: 8px 16px;
+  background-color: #ffc107;
+  color: #856404;
+  border: 2px solid #ffc107;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-load-test:hover {
+  background-color: #ffca2c;
+  border-color: #ffca2c;
+}
+

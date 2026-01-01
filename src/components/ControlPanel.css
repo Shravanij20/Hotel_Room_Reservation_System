@@ -49,13 +49,21 @@
   white-space: nowrap;
 }
 
-.btn:hover {
+.btn:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-.btn:active {
+.btn:active:not(:disabled) {
   transform: translateY(0);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #ccc !important;
+  border-color: #999 !important;
+  color: #666 !important;
 }
 
 .btn-book {

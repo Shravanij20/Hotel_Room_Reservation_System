@@ -32,3 +32,13 @@
   border: 1px solid #ddd;
 }
 
+.error-message {
+  margin: 15px 0;
+  padding: 12px 20px;
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 2px solid #f5c6cb;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
